@@ -69,7 +69,7 @@ sizes.each do |key, value|
   end
 end
 need_to_delete= 30000000-(70000000-sizes["/"])
-puts need_to_delete
+puts sum
 
 
 
