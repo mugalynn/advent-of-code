@@ -117,7 +117,8 @@ def find_repeat_heights
   total_height = heights[$indices[0]-1] + cycle_number * (height_diff[$indices[1]..($indices[2]-1)].sum)+ height_diff[$indices[1]..($indices[1]+remainder-1)].sum
   puts "the total height is #{total_height}"
   #puts "the height difference between #{indices[2]} and #{indices[3]-1} = #{heights[28839] - heights[25360]} does that match? #{heights[32319]-heights[28840]}"
-# have already tried 1582758620702 or 1582758620705
+# have already tried 1582758620702 or 1582758620705 but it is 1582758620701
+
 end
 
 def find_repeat
