@@ -27,6 +27,7 @@ def mix(starting_sequence)
       new_index = (starting_sequence.length-1) + new_index.remainder(starting_sequence.length)
     end
    puts "I'm shifting #{v} from #{old_index} to #{new_index}"
+   puts "the total length is #{hash_sequence.length}"
    #adjust the sequence of the rest
   # puts
    
@@ -34,12 +35,15 @@ def mix(starting_sequence)
     #check if the current
     if value[1] == old_index 
       value[1] = new_index
-    elsif new_index > old_index && value[1] <= new_index && value[1]> old_index
-       value[1]= (value[1] -1)
-      if value[1] < 0
-        value[1] = value[1] + (starting_sequence.length)
+    elsif new_index > old_index
+      if value[1] <= new_index && value[1]> old_index
+         value[1]= (value[1] -1)
+        if value[1] < 0
+        value[1] = value[1].remainder(starting_sequence.length) + starting_sequence.length 
+        end
       end
     elsif new_index < old_index 
+      puts "i'm a wrapper or I'm negative"
       if value[1] >= new_index && value[1] < old_index
         value[1]= (value[1] +1)
         if value[1] < 0
