@@ -18,7 +18,7 @@ def read_file
 end
 
 def calculate_width (path)
-  adjustment =1000  
+ 
   path = path
   width = 0
   $min_x = 0
@@ -51,84 +51,84 @@ def calculate_width (path)
     end
     
   end
-
-
-$min_x = $min_x + adjustment/2
-width = ($max_x-$min_x) 
-$width = width+1 + adjustment
-$depth = ($max_y - $min_y) + adjustment
-$min_y = $min_y - adjustment/2
-puts "the min x = #{$min_x} and the max x = #{$max_x}. The min depth = #{$min_y} and max height is #{$max_y}"
+  adjustment = 5000
+  $min_x = $min_x + adjustment/2
+  width = ($max_x-$min_x) 
+  $width = width+1 + adjustment
+  $depth = ($max_y - $min_y) + adjustment
+  $min_y = $min_y - adjustment/2
+  puts "the min x = #{$min_x} and the max x = #{$max_x}. The min depth = #{$min_y} and max height is #{$max_y}"
 end
 
 def move_rope (path)
   array_board = Array.new(($depth+1)*$width, '.')
-  current = 0
-  tail_current = 0
-  positions = Array.new(9, 0)
-  starting_location = current-$min_x -($min_y*$width)
-  puts "help"
-  array_board[starting_location]='s'if $visualize == true
-  display_grid(array_board) if $visualize == true
+  positions = Array.new(10, 0)
+  starting_location = positions[0]-$min_x -($min_y*$width)
+  #array_board[starting_location]='s'
+  #display_grid(array_board)
   #now that I know the width, I can move the head around.... (and tail)
   path.each_with_index do |v, i|
-    array_board, tail_current, current = move_head_longer(array_board, v, current, positions, tail_current)
+    array_board, positions = move_head_longer(array_board, positions, v)
   end
-  display_grid(array_board)if $visualize == true
+ # display_grid(array_board)
   count(array_board)
 end
-def move_head_longer(array_board, move, current, positions, tail_current)
-  v= move 
-  v[1].times do
-    if v[0] == 'R'
-      current += 1
-    elsif v[0]== 'L'
-      current -= 1
-    elsif v[0] == 'U'
-      current += $width
-    elsif v[0] == 'D'
-      current -= $width
-    end
+
+
+def move_head_longer(array_board, positions, v)
   
-  array_board[(current - $min_x)-($min_y*$width)] = 'h' if $visualize == true
-  $max_x = max_x
-  n=1
-  array_board, positions[n], current = move_next(array_board, positions[n], n, current)
-  while n<(positions.length-1)
-    array_board, positions[n] = move_next(array_board, positions[n], n, positions[n-1])
-  n+=1
+  v[1].times do
+    puts "do I move?"
+    if v[0] == 'R'
+      positions[0] += 1
+    elsif v[0]== 'L'
+      positions[0] -= 1
+    elsif v[0] == 'U'
+      positions[0] += $width
+    elsif v[0] == 'D'
+      positions[0] -= $width
+    end
+   # array_board[(positions[0] - $min_x)-($min_y*$width)] = 'h'
+    n=1
+    while n<10
+    array_board, positions = move_next(array_board, positions, n)
+    n+=1
+    end
+  #  display_grid(array_board)
   end
-  return [array_board, positions[n], current]
+  return [array_board, positions]
+
 end
 
-def move_next(array_board, position, current)
-  diff = current-position
+def move_next(array_board, positions, n)
+  diff = positions[n-1]-positions[n]
   sign = diff <=> 0
   #check if same row
-  if diff.abs() >= 2 && ((current-$min_x)/($width) == (position-$min_x)/($width)) 
-    position += sign*1
+  if diff.abs() >= 2 && ((positions[n-1]-$min_x)/($width) == (positions[n]-$min_x)/($width)) 
+    positions[n] += sign*1
   #check if same column
-  elsif (diff/$width).abs() >= 2 && ((current-$min_x)%($width) == (position-$min_x)%($width))
-    position += sign*$width
+  elsif (diff/$width).abs() >= 2 && ((positions[n-1]-$min_x)%($width) == (positions[n]-$min_x)%($width))
+    positions[n] += sign*$width
  #check if touching
-    elsif diff.abs() < 2 && ((current-$min_x)/$width == (position-$min_x)/$width)
-    position
-    elsif (diff/$width).abs() < 2 && (current-$min_x)%($width) == (position-$min_x)%($width)
-    position
-    elsif  diff.abs() == $width-1 || diff.abs() == $width+1
-      position
+  elsif diff.abs() < 2 && ((positions[n-1]-$min_x)/$width == (positions[n]-$min_x)/$width)
+    positions[n]
+  elsif (diff/$width).abs() < 2 && (positions[n-1]-$min_x)%($width) == (positions[n]-$min_x)%($width)
+    positions[n]
+  elsif  diff.abs() == $width-1 || diff.abs() == $width+1
+      positions[n]
   # move diagonals
-    elsif (current-$min_x)%($width) > (position-$min_x)%($width)
-      position += sign*$width +1
-    elsif (current-$min_x)%($width) < (position-$min_x)%($width)
-      position += sign*$width -1
-    end
+  elsif (positions[n-1]-$min_x)%($width) > (positions[n]-$min_x)%($width)
+      positions[n] += sign*$width +1
+  elsif (positions[n-1]-$min_x)%($width) < (positions[n]-$min_x)%($width)
+      positions[n] += sign*$width -1
+  end
  # puts "blah"
-  array_board[(position-$min_x)-($min_y*($width))]='n' if array_board[(position-$min_x)-($min_y*($width)) == '.']
+  if n == 9
+  array_board[(positions[n]-$min_x)-($min_y*($width))]=n
+  end
   # this adjustment does not work out in the bottom left corner of the grid when x and y are both negative.
  # puts "BLAH"
-  display_grid(array_board) if $visualize
-  return [array_board, position, current]
+  return [array_board, positions]
 end
 
 
@@ -145,8 +145,6 @@ def move_head(array_board, move, current, tail_current)
   elsif v[0] == 'D'
     current -= $width
   end
- 
-  
  array_board[(current - $min_x)-($min_y*$width)] = 'h' if $visualize == true
   $max_x = max_x
   array_board, tail_current, current = move_tail(array_board, tail_current, current)
@@ -186,7 +184,7 @@ def move_tail(array_board, tail_current, current)
 end
 
 def count(array_board)
-  visited = array_board.select {|i| i == 't'}
+  visited = array_board.select {|i| i == 9}
   total = visited.length
   puts total
 end
