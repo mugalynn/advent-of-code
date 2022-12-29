@@ -3,7 +3,7 @@ require 'json'
 def read_file
   pairs=[]
   input = []
-  lines = File.readlines('aoc_13_input.txt')
+  lines = File.readlines('aoc_13_shorter_input.txt')
   lines.each do |line|
    line=line.strip
    
@@ -20,6 +20,45 @@ def read_file
 end
 return input
 end
+
+def read_file_part_two
+  input = []
+  lines = File.readlines('AOC_13_input.txt')
+  lines.each do |line|
+    line=line.strip 
+    unless line.empty?
+    line = JSON.parse(line)
+    input << line
+   end
+   
+end
+return input
+end
+
+def bubblesorter(array)
+   k = array.length
+   w = 0
+   
+  while w <= k
+   i = 0 
+    swap_made = false
+     while i < ((k-w)-1)
+
+       if compare(array[i], array[i+1], 1) == 0
+         array[i], array[i+1] = array[i+1], array[i]
+         swap_made = true 
+       end
+      i += 1 
+     end
+     if swap_made == false 
+      break
+     end
+     w+=1  
+     end
+  array
+end
+
+
 
 def compare(left, right, index)
   if right.nil?
@@ -69,13 +108,19 @@ def compare(left, right, index)
   end
 end
 
-
+def part_one
 input = read_file
 sum = 0
 input.each_with_index do |pair, i|
   index = i+1
   add = compare(pair[0], pair[1], index)
   sum += add
-  
 end
 puts sum
+end
+
+
+input = read_file_part_two
+sorted = bubblesorter(input)
+decoder_key = (sorted.find_index([[2]])+1) * (sorted.find_index([[6]])+1)
+puts decoder_key
