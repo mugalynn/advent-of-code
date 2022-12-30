@@ -3,7 +3,7 @@ def read_file
   beacons = []
   sensor = []
   beacon = []
-  lines = File.readlines('AOC_15_input.txt')
+  lines = File.readlines('AOC_15_shorter_input.txt')
   lines.each do |line|
     line=line.split(":")
     sensor[0]=line[0].match(/[x][=](-?\d*)/)[1].to_i
@@ -32,6 +32,35 @@ def plot_sensors(sensors, beacons, board)
   return board
 end
 
+def check_sensor(sensors, beacons, y)
+  row = {}
+  count = 0
+  beginning_of_row = (y+$offset)*$width
+  end_of_row = beginning_of_row +$width-1
+  sensors.each_with_index do |coordinate, i|
+    delta_x = (coordinate[0]-beacons[i][0]).abs
+    delta_y = (coordinate[1]-beacons[i][1]).abs
+ # sensor  8, 7  beacon 2, 10
+    manhattan_dist = delta_x + delta_y
+    location = coordinate[0] +$offset  + (coordinate[1]+$offset)*$width
+    m = beginning_of_row
+    while m<end_of_row
+    if m == location
+      row[m] = 'S'
+    elsif m == (beacons[i][0] + $offset + (beacons[i][1]+$offset)*$width)
+      row[m] = 'B'
+    elsif (m-location).abs()/$width + ((m % $width) - (location % $width)).abs() < manhattan_dist && row[m].nil?
+        row[m]='#'
+    end
+   
+    m+=1
+  end
+end
+row=row.sort.to_h
+puts row.length
+end
+
+
 def calculate_distance(sensors, beacons, board)
   sensors.each_with_index do |coordinate, i|
     delta_x = (coordinate[0]-beacons[i][0]).abs
@@ -50,6 +79,8 @@ def calculate_distance(sensors, beacons, board)
  # draw_board(board)
   return board
 end
+
+
 
 def count_at_row(board, y)
 beginning_of_row = (y+$offset)*$width
@@ -82,7 +113,7 @@ def calculate_size(sensors, beacons)
   max_x=0
   min_y=0
   max_y=0
-  $offset = 30
+  $offset = 60
   sensors.each do |coordinate|
     if coordinate[0]< min_x
       min_x = coordinate[0]
@@ -120,13 +151,8 @@ puts $width
 puts $depth
 $width = (max_x - min_x).abs + $offset + $offset
 $depth = (max_y - min_y).abs + $offset
-
-board = Array.new($width*($depth+$offset), '.')
-return board
 end
 
 beacons, sensors = read_file
-board = calculate_size(sensors, beacons)
-plot_sensors(sensors, beacons, board)
-board = calculate_distance(sensors, beacons, board)
-puts count_at_row(board, 2000000)
+calculate_size(sensors, beacons)
+check_sensor(sensors, beacons, 10)
