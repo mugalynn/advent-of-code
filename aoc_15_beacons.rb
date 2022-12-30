@@ -1,9 +1,11 @@
+$offset = 30
+
 def read_file
   sensors = []
   beacons = []
   sensor = []
   beacon = []
-  lines = File.readlines('AOC_15_shorter_input.txt')
+  lines = File.readlines('AOC_15_input.txt')
   lines.each do |line|
     line=line.split(":")
     sensor[0]=line[0].match(/[x][=](-?\d*)/)[1].to_i
@@ -31,25 +33,71 @@ def plot_sensors(sensors, beacons, board)
 #  draw_board(board)
   return board
 end
+def search_area(sensors, beacons)
+  beacon=[]
+  y=0
+  while beacon[0].nil?
+    beacon[0], beacon[1] =check_for_beacon(sensors,beacons,y)
+    y+=1
+    if y==4000000
+      break
+    end
+  end
+  return beacon
+end
+
+def check_for_beacon(sensors, beacons, y)
+  row = {}
+  count = 0
+  begin_x = 0
+  end_of_x = 4000000
+  sensors.each_with_index do |sensor, i|
+    delta_x = (sensor[0]-beacons[i][0]).abs
+    delta_y = (sensor[1]-beacons[i][1]).abs
+ # sensor  8, 7  beacon 2, 10
+    manhattan_dist = delta_x + delta_y
+  
+    m = begin_x
+    while m<(end_of_x)
+    if m == sensor[0] && sensor[1]==y
+      row[m] = 'S'
+    elsif m == beacons[i][0] && beacons[i][1]==y
+      row[m] = 'B'
+    elsif ((m-sensor[0]).abs()+(y-sensor[1]).abs() <= manhattan_dist) && row[m] != "B" && row[m] != "S"
+        row[m]='#'
+    end
+   
+    m+=1
+  end
+end
+i=0
+while i<20
+  if row[i].nil?
+    return [i, y]
+  end
+  i+=1
+end
+
+end
 
 def check_sensor(sensors, beacons, y)
   row = {}
   count = 0
-  beginning_of_row = (y+$offset)*$width
-  end_of_row = beginning_of_row +$width-1
-  sensors.each_with_index do |coordinate, i|
-    delta_x = (coordinate[0]-beacons[i][0]).abs
-    delta_y = (coordinate[1]-beacons[i][1]).abs
+  begin_x = 0
+  end_of_x = 20
+  sensors.each_with_index do |sensor, i|
+    delta_x = (sensor[0]-beacons[i][0]).abs
+    delta_y = (sensor[1]-beacons[i][1]).abs
  # sensor  8, 7  beacon 2, 10
     manhattan_dist = delta_x + delta_y
-    location = coordinate[0] +$offset  + (coordinate[1]+$offset)*$width
-    m = beginning_of_row
-    while m<end_of_row
-    if m == location
+  
+    m = begin_x
+    while m<(end_of_x)
+    if m == sensor[0] && sensor[1]==y
       row[m] = 'S'
-    elsif m == (beacons[i][0] + $offset + (beacons[i][1]+$offset)*$width)
+    elsif m == beacons[i][0] && beacons[i][1]==y
       row[m] = 'B'
-    elsif (m-location).abs()/$width + ((m % $width) - (location % $width)).abs() < manhattan_dist && row[m].nil?
+    elsif ((m-sensor[0]).abs()+(y-sensor[1]).abs() <= manhattan_dist) && row[m] != "B" && row[m] != "S"
         row[m]='#'
     end
    
@@ -57,7 +105,8 @@ def check_sensor(sensors, beacons, y)
   end
 end
 row=row.sort.to_h
-puts row.length
+
+puts row.length-row.select{|k,v| v=="B"}.length
 end
 
 
@@ -69,7 +118,7 @@ def calculate_distance(sensors, beacons, board)
     manhattan_dist = delta_x + delta_y
     location = coordinate[0] +$offset  + (coordinate[1]+$offset)*$width
     board.each_with_index do |value, i|
-      if (i-location).abs()/$width + ((i % $width) - (location % $width)).abs() < manhattan_dist && value == '.'
+      if (i-location).abs()/$width + ((i % $width) - (location % $width)).abs() <= manhattan_dist && value == '.'
         board[i] = '#'
       end
     end
@@ -113,7 +162,7 @@ def calculate_size(sensors, beacons)
   max_x=0
   min_y=0
   max_y=0
-  $offset = 60
+  
   sensors.each do |coordinate|
     if coordinate[0]< min_x
       min_x = coordinate[0]
@@ -147,12 +196,11 @@ $max_x = max_x
 $max_y = max_y
 $min_x = min_x
 $min_y = min_y
-puts $width
-puts $depth
-$width = (max_x - min_x).abs + $offset + $offset
+
+$width = (max_x - min_x).abs + 2 * $offset
 $depth = (max_y - min_y).abs + $offset
 end
 
-beacons, sensors = read_file
-calculate_size(sensors, beacons)
-check_sensor(sensors, beacons, 10)
+beacons, sensors = read_file()
+puts search_area(sensors, beacons)
+#check_sensor(sensors, beacons, 2000000)
