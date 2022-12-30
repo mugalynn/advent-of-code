@@ -8,7 +8,7 @@
       "name": "Debug Local File",
       "type": "Ruby",
       "request": "launch",
-      "program": "${workspaceRoot}/aoc_13_packets.rb"
+      "program": "${workspaceRoot}/aoc_15_beacons.rb"
     }
   ]
 }
