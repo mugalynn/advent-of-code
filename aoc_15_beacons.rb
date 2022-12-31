@@ -46,6 +46,85 @@ def search_area(sensors, beacons)
   return beacon
 end
 
+def just_outside(sensors, beacons)
+  coordinates_to_check=[]
+  n=0
+  sensors.each_with_index do |sensor, i|
+    delta_x = (sensor[0]-beacons[i][0]).abs
+    delta_y = (sensor[1]-beacons[i][1]).abs
+    manhattan_dist = delta_x + delta_y
+    #coordinates_to_check.append([sensor[0]+manhattan_dist, sensor[1]])
+    #coordinates_to_check.append([sensor[0]-manhattan_dist, sensor[1]])
+    #coordinates_to_check.append([sensor[0], sensor[1]+manhattan_dist])
+    coordinates_to_check.append([sensor[0], sensor[1]-manhattan_dist])
+    column = sensor[0]-manhattan_dist
+    
+    first_x = coordinates_to_check[n][0]+1
+    first_y = coordinates_to_check[n][1]+1
+    second_x = coordinates_to_check[n][0]-1
+    second_y = coordinates_to_check[n][1]+1
+    coordinates_to_check.append([first_x, first_y])
+    coordinates_to_check.append([second_x, second_y])
+    n+=1
+    column +=1
+    while column <= sensor[0]
+      first_x = coordinates_to_check[n][0]+1
+      first_y = coordinates_to_check[n][1]+1
+      n+=1
+      second_x = coordinates_to_check[n][0]-1
+      second_y = coordinates_to_check[n][1]+1
+      coordinates_to_check.append([first_x, first_y])
+      coordinates_to_check.append([second_x, second_y])
+      n+=1
+      column+=1
+    end
+  while column < sensor[1]+ manhattan_dist
+    first_x = coordinates_to_check[n][0]-1
+    first_y = coordinates_to_check[n][1]+1
+    n+=1
+    second_x = coordinates_to_check[n][0]+1
+    second_y = coordinates_to_check[n][0]+1
+    n+=1
+    column +=1
+  end
+  coordinates_to_check.append([sensor[0], sensor[1] + manhattan_dist])
+  n+=1
+end 
+return sensor_out_of_bounds
+end
+
+def check_sensor_out_of_bounds (sensor_out_of_bounds, sensors, beacons, y)
+  begin_x = 0
+  end_of_x = 4000000
+  checked = hash.New
+  sensors.each do |s, i|
+    delta_x = (s[0]-beacons[i][0]).abs
+    delta_y = (s[1]-beacons[i][1]).abs
+    manhattan_dist = delta_x + delta_y
+    coordinates_to_check.each_with_index |v, index|
+      if v[0]<4000000 && v[1]<4000000
+        if v[0] == s[0] && v[1] == s[1]
+          checked[index] = "S"
+        elsif beacons[i][0] == v[0] && v[1] == beacons[i][0]
+          checked[index] = "B"
+        elsif (v[0]-s[0]).abs + (v[1]-s[1]).abs <= manhattan_dist && checked[index].nil?
+          checked[index] = "#"
+        end
+      else
+        checked[index] = "O"
+      end 
+    end
+  end
+  coordinates_to_check.each_with_index |v, index|
+    if checked[index].nil?
+      return (v)
+    end
+end
+
+
+        
+
+
 def check_for_beacon(sensors, beacons, y)
   row = {}
   count = 0
