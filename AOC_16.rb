@@ -46,8 +46,10 @@ def graph_with_paths(_graph, flow)
       end
     end
   end
+  return graph_with_paths
+end
 
-  def path
+def path
     v1 = 'AA'
     distance_from_start = {}
     open_list = [AA]
@@ -69,6 +71,7 @@ end
 
 graph, flow = read_file
 graph_with_paths(graph, flow)
+floyd_warshall()
 
 puts graph
 puts flow
